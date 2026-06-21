@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { PerfilesRepartidorModule } from './perfiles-repartidor/perfiles-repartidor.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     DatabaseModule,
     AuthModule,
     UsuariosModule,
+    PerfilesRepartidorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
