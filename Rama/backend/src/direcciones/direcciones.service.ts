@@ -146,4 +146,20 @@ export class DireccionesService {
       direccion: result.rows[0],
     };
   }
+
+  // ELIMINAR
+  async eliminar(id: number) {
+    const result = await this.db.query(
+      `DELETE FROM direcciones WHERE direccion_id = $1 RETURNING *`,
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      throw new BadRequestException('Dirección no encontrada');
+    }
+
+    return {
+      mensaje: 'Dirección eliminada',
+    };
+  }
 }

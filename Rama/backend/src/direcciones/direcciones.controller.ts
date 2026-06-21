@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -54,5 +55,12 @@ export class DireccionesController {
       id,
       dto,
     );
+  }
+
+  // Eliminar Direccion
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  eliminar(@Param('id', ParseIntPipe) id: number) {
+    return this.direccionesService.eliminar(id);
   }
 }

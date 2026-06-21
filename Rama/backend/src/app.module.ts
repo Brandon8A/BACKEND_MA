@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { PerfilesRepartidorModule } from './perfiles-repartidor/perfiles-repartidor.module';
 import { DireccionesModule } from './direcciones/direcciones.module';
+import { EnviosModule } from './envios/envios.module';
+import { CalificacionModule } from './calificacion/calificacion.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { DireccionesModule } from './direcciones/direcciones.module';
     UsuariosModule,
     PerfilesRepartidorModule,
     DireccionesModule,
+    EnviosModule,
+    CalificacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
