@@ -1,8 +1,17 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { Pool } from 'pg';
+import {
+  Injectable,
+  OnModuleDestroy,
+} from '@nestjs/common';
+
+import {
+  Pool,
+  PoolClient,
+} from 'pg';
 
 @Injectable()
-export class DatabaseService implements OnModuleDestroy {
+export class DatabaseService
+  implements OnModuleDestroy
+{
   private pool: Pool;
 
   constructor() {
@@ -15,8 +24,15 @@ export class DatabaseService implements OnModuleDestroy {
     });
   }
 
-  async query(text: string, params?: any[]) {
+  async query(
+    text: string,
+    params?: any[],
+  ) {
     return this.pool.query(text, params);
+  }
+
+  async getClient(): Promise<PoolClient> {
+    return this.pool.connect();
   }
 
   async onModuleDestroy() {

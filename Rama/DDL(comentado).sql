@@ -172,6 +172,20 @@ CREATE TABLE calificaciones (
     fecha_calificacion                       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE password_reset_tokens (
+    token_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    usuario_id BIGINT NOT NULL
+        REFERENCES usuarios(usuario_id)
+        ON DELETE CASCADE,
+
+    token VARCHAR(255) NOT NULL UNIQUE,
+
+    fecha_expiracion TIMESTAMPTZ NOT NULL,
+
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+
+    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 -- =============================================================================
 -- 7. ÍNDICES
 -- =============================================================================
