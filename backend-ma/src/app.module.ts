@@ -10,7 +10,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { PerfilesRepartidorModule } from './perfiles-repartidor/perfiles-repartidor.module';
 import { DireccionesModule } from './direcciones/direcciones.module';
 import { EnviosModule } from './envios/envios.module';
-//import { CalificacionModule } from './calificacion/calificacion.module';
+import { CalificacionModule } from './calificacion/calificacion.module';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { EnviosModule } from './envios/envios.module';
     PerfilesRepartidorModule,
     DireccionesModule,
     EnviosModule,
-    //CalificacionModule,
+    CalificacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
