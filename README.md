@@ -12,7 +12,7 @@ npm install
 npm run start:dev
 ```
 
-##Ojito aquí
+## Ojito aquí
 Al trabajar la base de datos de manera local, realizar modificaciones al archivo `.env` sustituyendo la siguiente información:
 ```
 DB_HOST=localhost  
