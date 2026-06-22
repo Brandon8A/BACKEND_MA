@@ -7,6 +7,10 @@ import { DatabaseModule } from './database/database.module';
 import { DepartamentoModule } from './departamento/departamento.module';
 import { MunicipioModule } from './municipio/municipio.module';
 import { ZonaModule } from './zona/zona.module';
+import { RolModule } from './rol/rol.module';
+import { TiposVehiculoModule } from './tipos-vehiculo/tipos-vehiculo.module';
+import { EstadosEnvioModule } from './estados-envio/estados-envio.module';
+import { MetodosPagoModule } from './metodos-pago/metodos-pago.module';
 
 @Module({
   imports: [
@@ -16,7 +20,11 @@ import { ZonaModule } from './zona/zona.module';
     DatabaseModule,
     DepartamentoModule,
     MunicipioModule,
-    ZonaModule
+    ZonaModule,
+    RolModule,
+    TiposVehiculoModule,
+    EstadosEnvioModule,
+    MetodosPagoModule
   ],
   controllers: [AppController],
   providers: [AppService],
