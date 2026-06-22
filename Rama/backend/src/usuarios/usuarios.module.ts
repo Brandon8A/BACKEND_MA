@@ -3,8 +3,8 @@ import { UsuariosController } from './usuarios.controller';
 import { UsuariosService } from './usuarios.service';
 import { DatabaseModule } from '../database/database.module';
 
-@Module({
-  imports: [DatabaseModule],
+@Module({imports: [DatabaseModule],
+  
   controllers: [UsuariosController],
   providers: [UsuariosService],
 })

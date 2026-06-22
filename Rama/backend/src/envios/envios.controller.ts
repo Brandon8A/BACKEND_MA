@@ -30,7 +30,7 @@ export class EnviosController {
   }
 
 
-  // REPARTIDOR: ver disponibles
+  // REPARTIDOR: ver disponibles envios
 
   @UseGuards(JwtAuthGuard)
   @Get('disponibles')
@@ -54,9 +54,9 @@ export class EnviosController {
 
   // CAMBIAR ESTADO (repartidor)
   // {
-  //      "estado_id":  3  // En camino , 4 = Entregado, 5 = Cancelado
+  //      "estado_id":  3  // En camino , 4 = Entregado, 5 = Cancelado, 2 = Aceptado
   // }
- 
+
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('Repartidor')
@@ -75,6 +75,7 @@ export class EnviosController {
 
 
   // DETALLE ENVÍO
+  // Aqui va el costo de envio ya calculado pero todo depende de los km * 5
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
@@ -82,7 +83,7 @@ export class EnviosController {
     return this.service.detalleEnvio(Number(id));
   }
 
- 
+
   // HISTORIAL ENVÍO
 
   @UseGuards(JwtAuthGuard)

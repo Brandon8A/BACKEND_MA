@@ -7,10 +7,57 @@ import { CambiarEstadoDto } from './Dto/cambiar-estado.dto';
 export class EnviosService {
   constructor(private readonly db: DatabaseService) {}
 
-  // =========================
-  // 1. CREAR ENVÍO (CLIENTE)
-  // =========================
+
+  //  CREAR ENVÍO (CLIENTE)
+  
   async crearEnvio(dto: CreateEnvioDto, clienteId: number) {
+
+    // validar direcciones
+    const direcciones = await this.db.query(
+      `
+      SELECT direccion_id
+      FROM direcciones
+      WHERE direccion_id IN ($1,$2)
+      `,
+      [
+        dto.direccion_origen_id,
+        dto.direccion_destino_id,
+      ],
+    );
+
+    if (direcciones.rows.length < 2) {
+      throw new BadRequestException(
+        'Direcciones inválidas',
+      );
+    }
+
+    // validar método de pago
+    if (dto.metodo_pago_id) {
+      const metodo = await this.db.query(
+        `
+        SELECT metodo_pago_id
+        FROM metodos_pago
+        WHERE metodo_pago_id = $1
+        `,
+        [dto.metodo_pago_id],
+      );
+
+      if (!metodo.rows.length) {
+        throw new BadRequestException(
+          'Método de pago inválido',
+        );
+      }
+    }
+
+    // estado pendiente
+    const estado = await this.db.query(
+      `
+      SELECT estado_id
+      FROM estados_envio
+      WHERE nombre = 'Pendiente'
+      `,
+    );
+
     const result = await this.db.query(
       `
       INSERT INTO envios (
@@ -34,7 +81,7 @@ export class EnviosService {
         dto.precio_sugerido,
         dto.distancia_km,
         dto.metodo_pago_id ?? null,
-        1, // PENDIENTE
+        estado.rows[0].estado_id,
       ],
     );
 
@@ -44,9 +91,8 @@ export class EnviosService {
     };
   }
 
-  // =========================
-  // 2. ENVÍOS DISPONIBLES
-  // =========================
+  // ENVÍOS DISPONIBLES
+  
   async enviosDisponibles() {
     const result = await this.db.query(`
       SELECT * FROM vista_pedidos_disponibles
@@ -55,9 +101,9 @@ export class EnviosService {
     return result.rows;
   }
 
-  // =========================
-  // 3. ACEPTAR ENVÍO (MATCH)
-  // =========================
+  
+  // ACEPTAR ENVÍO (MATCH)
+  
   async aceptarEnvio(envioId: number, repartidorId: number) {
 
     const result = await this.db.query(
@@ -85,9 +131,9 @@ export class EnviosService {
     };
   }
 
-  // =========================
-  // 4. CAMBIAR ESTADO
-  // =========================
+
+  // CAMBIAR ESTADO
+
   async cambiarEstado(
     envioId: number,
     dto: CambiarEstadoDto,
@@ -108,16 +154,16 @@ export class EnviosService {
       throw new BadRequestException('Envío no encontrado');
     }
 
-    // El historial ya lo maneja tu TRIGGER ✔️
+    // El historial ya lo maneja el TRIGGER
     return {
       mensaje: 'Estado actualizado correctamente',
       envio: result.rows[0],
     };
   }
 
-  // =========================
-  // 5. DETALLE ENVÍO
-  // =========================
+
+  //  DETALLE ENVÍO
+
   async detalleEnvio(envioId: number) {
     const result = await this.db.query(
       `
@@ -134,9 +180,9 @@ export class EnviosService {
     return result.rows[0];
   }
 
-  // =========================
-  // 6. HISTORIAL ENVÍO
-  // =========================
+ 
+  //  HISTORIAL ENVÍO
+
   async historialEnvio(envioId: number) {
     const result = await this.db.query(
       `

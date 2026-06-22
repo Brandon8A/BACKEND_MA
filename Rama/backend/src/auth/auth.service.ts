@@ -20,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  // Crea usuario con Rol de CLientes
   async register(registerDto: RegisterDto) {
     const {
       nombres,
