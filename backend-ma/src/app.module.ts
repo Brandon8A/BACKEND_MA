@@ -11,6 +11,13 @@ import { PerfilesRepartidorModule } from './perfiles-repartidor/perfiles-reparti
 import { DireccionesModule } from './direcciones/direcciones.module';
 import { EnviosModule } from './envios/envios.module';
 import { CalificacionModule } from './calificacion/calificacion.module';
+import { DepartamentoModule } from './departamento/departamento.module';
+import { MunicipioModule } from './municipio/municipio.module';
+import { ZonaModule } from './zona/zona.module';
+import { RolModule } from './rol/rol.module';
+import { TiposVehiculoModule } from './tipos-vehiculo/tipos-vehiculo.module';
+import { EstadosEnvioModule } from './estados-envio/estados-envio.module';
+import { MetodosPagoModule } from './metodos-pago/metodos-pago.module';
 
 @Module({
   imports: [
@@ -24,6 +31,13 @@ import { CalificacionModule } from './calificacion/calificacion.module';
     DireccionesModule,
     EnviosModule,
     CalificacionModule,
+    DepartamentoModule,
+    MunicipioModule,
+    ZonaModule,
+    RolModule,
+    TiposVehiculoModule,
+    EstadosEnvioModule,
+    MetodosPagoModule
   ],
   controllers: [AppController],
   providers: [AppService],
