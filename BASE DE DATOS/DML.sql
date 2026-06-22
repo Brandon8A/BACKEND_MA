@@ -42,8 +42,7 @@ INSERT INTO zonas (nombre, municipio_id) VALUES
 
 INSERT INTO roles (nombre_rol) VALUES
 ('Cliente'),
-('Repartidor'),
-('Administrador');
+('Repartidor');
 
 INSERT INTO tipos_vehiculo (nombre) VALUES
 ('Moto'),
@@ -79,8 +78,7 @@ INSERT INTO usuarios (nombres, apellidos, email, password_hash, telefono, dpi, f
 ('José Manuel',      'García Solís',    'jose.garcia@flashdelivery.gt','$2a$12$Io3gNY2wTTJ5X0U.FZQXbuGNaABZcQNv1I.w8pomO8gYRfn4bW/DK', '55667788', '2589631470106', 'https://i.pravatar.cc/150?img=6', '1992-09-09'),
 ('Luis Fernando',    'Hernández Cux',   'luis.hernandez@flashdelivery.gt','$2a$12$Io3gNY2wTTJ5X0U.FZQXbuGNaABZcQNv1I.w8pomO8gYRfn4bW/DK', '41789012', '2589631470107', 'https://i.pravatar.cc/150?img=7', '1996-04-21'),
 ('Pedro Antonio',    'Xicará Tzul',     'pedro.xicara@flashdelivery.gt','$2a$12$Io3gNY2wTTJ5X0U.FZQXbuGNaABZcQNv1I.w8pomO8gYRfn4bW/DK', '32567890', '2589631470108', 'https://i.pravatar.cc/150?img=8', '1991-12-14'),
-('Diego Alejandro',  'Recinos Paz',     'diego.recinos@flashdelivery.gt','$2a$12$Io3gNY2wTTJ5X0U.FZQXbuGNaABZcQNv1I.w8pomO8gYRfn4bW/DK', '40998877', '2589631470109', 'https://i.pravatar.cc/150?img=9', '1997-06-08'),
-('Sistema',          'Administrador',   'admin@flashdelivery.gt',    '$2a$12$Io3gNY2wTTJ5X0U.FZQXbuGNaABZcQNv1I.w8pomO8gYRfn4bW/DK', '50001111', '2589631470110', 'https://i.pravatar.cc/150?img=10', '1988-01-01');
+('Diego Alejandro',  'Recinos Paz',     'diego.recinos@flashdelivery.gt','$2a$12$Io3gNY2wTTJ5X0U.FZQXbuGNaABZcQNv1I.w8pomO8gYRfn4bW/DK', '40998877', '2589631470109', 'https://i.pravatar.cc/150?img=9', '1997-06-08');
 
 -- -----------------------------------------------------------------------------
 -- 4. ASIGNACIÓN DE ROLES
@@ -98,8 +96,7 @@ WHERE (u.email, r.nombre_rol) IN (
     ('jose.garcia@flashdelivery.gt',     'Repartidor'),
     ('luis.hernandez@flashdelivery.gt',  'Repartidor'),
     ('pedro.xicara@flashdelivery.gt',    'Repartidor'),
-    ('diego.recinos@flashdelivery.gt',   'Repartidor'),
-    ('admin@flashdelivery.gt',           'Administrador')
+    ('diego.recinos@flashdelivery.gt',   'Repartidor')
 );
 
 -- -----------------------------------------------------------------------------
