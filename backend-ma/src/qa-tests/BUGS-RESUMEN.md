@@ -11,7 +11,7 @@ Entorno: Supabase (Flash-Delivery)
 
 | Total bugs | Críticos 🔴 | Altos 🟠 | Medios 🟡 |
 |------------|-------------|----------|-----------|
-| 6          | 0           | 4        | 2         |
+| 8          | 0           | 5        | 3         |
 
 ---
 
@@ -73,30 +73,57 @@ Entorno: Supabase (Flash-Delivery)
 - `GET /zona/99999`
 - `GET /rol/99999`
 
-**Descripción:** Cuando se consulta un recurso con un ID que no existe, el servidor devuelve `500 Internal Server Error` en lugar de manejar el error correctamente con `400 Bad Request` o `404 Not Found`.  
+**Descripción:** Cuando se consulta un recurso con un ID que no existe, el servidor devuelve `500 Internal Server Error` en lugar de manejar el error correctamente.  
 **Resultado obtenido:** `500 Internal Server Error`  
 **Resultado esperado:** `400 Bad Request` o `404 Not Found`  
-**Recomendación:** Agregar validación en cada service para verificar si el recurso existe antes de retornarlo, y lanzar `NotFoundException` o `BadRequestException` según corresponda.
+**Recomendación:** Agregar validación en cada service para verificar si el recurso existe y lanzar `NotFoundException` o `BadRequestException` según corresponda.
 
 ---
 
-## BUG-06 — Nombre de departamento modificado por pruebas
+## BUG-06 — Datos de producción modificados durante pruebas
 
-**Módulo:** Departamento  
+**Módulo:** Departamento / Rol  
 **Severidad:** Media 🟡  
-**Endpoint:** `PATCH /departamento/1`  
-**Descripción:** Durante las pruebas se actualizó el nombre del departamento con ID 1 de `"Guatemala"` a `"Guatemala Actualizado"`. Esto afectó datos reales de la base de datos de Supabase y se propagó a municipios y zonas relacionadas.  
-**Recomendación:** Para futuras pruebas usar un entorno de staging separado del de producción, o revertir los cambios después de cada prueba.
+**Endpoint:** `PATCH /departamento/1`, `PATCH /rol/1`  
+**Descripción:** Durante las pruebas se actualizó el nombre del departamento con ID 1 de `"Guatemala"` a `"Guatemala Actualizado"` y el rol 1 de `"Cliente"` a `"Admin Actualizado"`. Esto afectó datos reales de Supabase y se propagó a municipios, zonas y la función `fn_validar_roles_envio()`.  
+**Recomendación:** Usar un entorno de staging separado del de producción para ejecutar pruebas.
+
+---
+
+## BUG-07 — Crear envío devuelve 500 por datos corruptos
+
+**Módulo:** Envíos  
+**Severidad:** Alta 🟠  
+**Endpoint:** `POST /envios`  
+**Descripción:** Al intentar crear un envío el servidor devuelve `500 Internal Server Error`. El error proviene de la función PLpgSQL `fn_validar_roles_envio()` que no reconoce al usuario como `Cliente` porque el nombre del rol fue modificado durante las pruebas de catálogos.  
+**Error en servidor:**
+```
+error: El usuario 10 no tiene el rol de Cliente
+where: PL/pgSQL function fn_validar_roles_envio() line 7 at RAISE
+```
+**Recomendación:** Restaurar el nombre del rol 1 a `"Cliente"` en la base de datos y usar datos de prueba aislados.
+
+---
+
+## BUG-08 — Error de PLpgSQL no manejado correctamente
+
+**Módulo:** Envíos  
+**Severidad:** Media 🟡  
+**Endpoint:** `POST /envios`  
+**Descripción:** Cuando la función PLpgSQL lanza un `RAISE`, el backend no lo captura ni lo convierte en un error controlado, sino que propaga directamente un `500 Internal Server Error` sin mensaje descriptivo para el cliente.  
+**Recomendación:** Agregar manejo de excepciones en `EnviosService.crearEnvio()` para capturar errores de la BD y retornar respuestas HTTP apropiadas.
 
 ---
 
 ## Estado de corrección
 
-| Bug | Módulo | Reportado | Corregido |
-|-----|--------|-----------|-----------|
-| BUG-01 | Usuarios | ✅ | ⏳ Pendiente |
-| BUG-02 | Auth | ✅ | ⏳ Pendiente |
-| BUG-03 | Municipio | ✅ | ⏳ Pendiente |
-| BUG-04 | Zona | ✅ | ⏳ Pendiente |
-| BUG-05 | Departamento, Municipio, Zona, Rol | ✅ | ⏳ Pendiente |
-| BUG-06 | Departamento | ✅ | ⏳ Pendiente |
+| Bug | Módulo | Severidad | Reportado | Corregido |
+|-----|--------|-----------|-----------|-----------|
+| BUG-01 | Usuarios | Alta 🟠 | ✅ | ⏳ Pendiente |
+| BUG-02 | Auth | Media 🟡 | ✅ | ⏳ Pendiente |
+| BUG-03 | Municipio | Alta 🟠 | ✅ | ⏳ Pendiente |
+| BUG-04 | Zona | Alta 🟠 | ✅ | ⏳ Pendiente |
+| BUG-05 | Departamento, Municipio, Zona, Rol | Alta 🟠 | ✅ | ⏳ Pendiente |
+| BUG-06 | Departamento / Rol | Media 🟡 | ✅ | ⏳ Pendiente |
+| BUG-07 | Envíos | Alta 🟠 | ✅ | ⏳ Pendiente |
+| BUG-08 | Envíos | Media 🟡 | ✅ | ⏳ Pendiente |
