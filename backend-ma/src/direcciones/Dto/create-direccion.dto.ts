@@ -5,13 +5,17 @@ import {
   MaxLength,
 } from 'class-validator';
 
+import { Type } from 'class-transformer';
+
 export class CreateDireccionDto {
 
   @IsNumber()
+  @Type(() => Number)
   municipio_id!: number;
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   zona_id?: number;
 
   @IsString()
@@ -23,8 +27,10 @@ export class CreateDireccionDto {
   referencia?: string;
 
   @IsOptional()
+  @Type(() => Number)
   latitud?: number;
 
   @IsOptional()
+  @Type(() => Number)
   longitud?: number;
 }

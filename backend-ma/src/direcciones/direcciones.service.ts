@@ -10,40 +10,57 @@ export class DireccionesService {
   ) {}
 
   // Crear dirección
-  async crear(dto: CreateDireccionDto) {
+  async crear(
+    dto: CreateDireccionDto,
+    usuarioId: number,
+  ) {
 
+    // 1. Verificar que existe el municipio
     const municipio = await this.db.query(
       `
       SELECT municipio_id
       FROM municipios
       WHERE municipio_id = $1
       `,
-      [dto.municipio_id],
+      [
+        dto.municipio_id
+      ],
     );
 
+
     if (municipio.rows.length === 0) {
-      throw new BadRequestException(
-        'Municipio no válido',
-      );
+      throw new BadRequestException('El municipio no existe');
     }
 
+
+
+    // 2. Verificar que existe la zona (si viene enviada)
     if (dto.zona_id) {
+
       const zona = await this.db.query(
         `
         SELECT zona_id
         FROM zonas
         WHERE zona_id = $1
+        AND municipio_id = $2
         `,
-        [dto.zona_id],
+        [
+          dto.zona_id,
+          dto.municipio_id
+        ],
       );
+
 
       if (zona.rows.length === 0) {
         throw new BadRequestException(
-          'Zona no válida',
+          'La zona no existe o no pertenece al municipio seleccionado'
         );
       }
     }
 
+
+
+    // 3. Insertar dirección
     const result = await this.db.query(
       `
       INSERT INTO direcciones (
@@ -55,7 +72,7 @@ export class DireccionesService {
         longitud
       )
       VALUES ($1,$2,$3,$4,$5,$6)
-      RETURNING *
+      RETURNING direccion_id
       `,
       [
         dto.municipio_id,
@@ -67,9 +84,35 @@ export class DireccionesService {
       ],
     );
 
+
+    const direccionId = result.rows[0].direccion_id;
+
+
+    if (!direccionId) {
+      throw new Error('No se generó direccion_id');
+    }
+
+
+
+    // 4. Relacionar usuario con dirección
+    await this.db.query(
+      `
+      INSERT INTO usuario_direcciones(
+        usuario_id,
+        direccion_id
+      )
+      VALUES ($1,$2)
+      `,
+      [
+        usuarioId,
+        direccionId,
+      ],
+    );
+
+
     return {
       mensaje: 'Dirección creada correctamente',
-      direccion: result.rows[0],
+      direccion_id: direccionId,
     };
   }
 
@@ -79,6 +122,7 @@ export class DireccionesService {
       `
       SELECT *
       FROM direcciones
+      WHERE activo = true
       ORDER BY direccion_id DESC
       `,
     );
@@ -147,10 +191,14 @@ export class DireccionesService {
     };
   }
 
-  // ELIMINAR
-  async eliminar(id: number) {
+ async eliminar(id: number) {
     const result = await this.db.query(
-      `DELETE FROM direcciones WHERE direccion_id = $1 RETURNING *`,
+      `
+      UPDATE direcciones
+      SET activo = FALSE
+      WHERE direccion_id = $1
+      RETURNING *
+      `,
       [id],
     );
 
@@ -159,7 +207,45 @@ export class DireccionesService {
     }
 
     return {
-      mensaje: 'Dirección eliminada',
+      mensaje: 'Dirección desactivada',
     };
+  }
+
+  //Direcciones del Usuario Logeado
+  async obtenerDireccionesCliente(
+  usuarioId: number,
+) {
+  const result = await this.db.query(
+    `
+    SELECT
+      d.direccion_id,
+      d.direccion_linea,
+      d.referencia,
+      d.latitud,
+      d.longitud,
+      m.nombre AS municipio,
+      z.nombre AS zona,
+      ud.es_principal
+
+    FROM usuario_direcciones ud
+
+    INNER JOIN direcciones d
+      ON ud.direccion_id = d.direccion_id
+
+      INNER JOIN municipios m
+        ON d.municipio_id = m.municipio_id
+
+      LEFT JOIN zonas z
+        ON d.zona_id = z.zona_id
+
+      WHERE ud.usuario_id = $1
+
+      ORDER BY ud.es_principal DESC,
+              d.direccion_id DESC
+      `,
+      [usuarioId],
+    );
+
+    return result.rows;
   }
 }

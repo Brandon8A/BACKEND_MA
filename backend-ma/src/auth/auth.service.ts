@@ -20,96 +20,118 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // Crea usuario con Rol de CLientes
-  async register(registerDto: RegisterDto) {
-    const {
+  // Crea usuario con Rol de Clientes
+async register(registerDto: RegisterDto) {
+  const {
+    nombres,
+    apellidos,
+    email,
+    password,
+    telefono,
+    dpi,
+    foto_url,
+    fecha_nacimiento,
+  } = registerDto;
+
+  // 1. Verificar email existente
+  const usuarioExistente = await this.db.query(
+    `
+    SELECT usuario_id
+    FROM usuarios
+    WHERE email = $1
+    `,
+    [email],
+  );
+
+  if (usuarioExistente.rows.length > 0) {
+    throw new BadRequestException('El correo ya existe');
+  }
+
+  // 2. Verificar DPI existente (IMPORTANTE)
+  const dpiExistente = await this.db.query(
+    `
+    SELECT usuario_id
+    FROM usuarios
+    WHERE dpi = $1
+    `,
+    [dpi],
+  );
+
+  if (dpiExistente.rows.length > 0) {
+    throw new BadRequestException('El DPI ya está registrado');
+  }
+
+  // 3. Hash password
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  // 4. Insertar usuario
+  const nuevoUsuario = await this.db.query(
+    `
+    INSERT INTO usuarios (
       nombres,
       apellidos,
       email,
-      password,
+      password_hash,
       telefono,
       dpi,
       foto_url,
-      fecha_nacimiento,
-    } = registerDto;
+      fecha_nacimiento
+    )
+    VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8
+    )
+    RETURNING usuario_id
+    `,
+    [
+      nombres,
+      apellidos,
+      email,
+      passwordHash,
+      telefono,
+      dpi ?? null,
+      foto_url ?? null,
+      fecha_nacimiento ?? null,
+    ],
+  );
 
-    const usuarioExistente = await this.db.query(
-      `
-      SELECT usuario_id
-      FROM usuarios
-      WHERE email = $1
-      `,
-      [email],
+  const usuarioId = nuevoUsuario.rows[0].usuario_id;
+
+  // 5. Buscar rol de forma segura (FIX DEL ERROR)
+  const rolCliente = await this.db.query(
+    `
+    SELECT rol_id
+    FROM roles
+    WHERE LOWER(nombre_rol) = 'cliente'
+    `,
+  );
+
+  // 6. Validar que exista el rol
+  if (rolCliente.rows.length === 0) {
+    throw new BadRequestException(
+      'No existe el rol Cliente en la base de datos',
     );
-
-    if (usuarioExistente.rows.length > 0) {
-      throw new BadRequestException(
-        'El correo ya existe',
-      );
-    }
-
-    const passwordHash =
-      await bcrypt.hash(password, 10);
-
-    const nuevoUsuario = await this.db.query(
-      `
-      INSERT INTO usuarios (
-        nombres,
-        apellidos,
-        email,
-        password_hash,
-        telefono,
-        dpi,
-        foto_url,
-        fecha_nacimiento
-      )
-      VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8
-      )
-      RETURNING usuario_id
-      `,
-      [
-        nombres,
-        apellidos,
-        email,
-        passwordHash,
-        telefono,
-        dpi ?? null,
-        foto_url ?? null,
-        fecha_nacimiento ?? null,
-      ],
-    );
-
-    const usuarioId =
-      nuevoUsuario.rows[0].usuario_id;
-
-    const rolCliente = await this.db.query(
-      `
-      SELECT rol_id
-      FROM roles
-      WHERE nombre_rol = 'Cliente'
-      `,
-    );
-
-    await this.db.query(
-      `
-      INSERT INTO usuario_roles (
-        usuario_id,
-        rol_id
-      )
-      VALUES ($1,$2)
-      `,
-      [
-        usuarioId,
-        rolCliente.rows[0].rol_id,
-      ],
-    );
-
-    return {
-      message: 'Usuario registrado correctamente',
-      usuario_id: usuarioId,
-    };
   }
+
+  // 7. Asignar rol
+  await this.db.query(
+    `
+    INSERT INTO usuario_roles (
+      usuario_id,
+      rol_id
+    )
+    VALUES ($1,$2)
+    `,
+    [
+      usuarioId,
+      rolCliente.rows[0].rol_id,
+    ],
+  );
+
+  return {
+    message: 'Usuario registrado correctamente',
+    usuario_id: usuarioId,
+  };
+}
 
   // Login Acceso
   async login(loginDto: LoginDto) {

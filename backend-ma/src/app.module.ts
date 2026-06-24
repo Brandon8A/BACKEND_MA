@@ -24,7 +24,7 @@ import { MetodosPagoModule } from './metodos-pago/metodos-pago.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    DatabaseModule,
+    //DatabaseModule,
     AuthModule,
     UsuariosModule,
     PerfilesRepartidorModule,

@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -21,18 +22,32 @@ export class DireccionesController {
     private readonly direccionesService: DireccionesService,
   ) {}
 
+  
+
   // Crear dirección
   @UseGuards(JwtAuthGuard)
   @Post()
-  crear(@Body() dto: CreateDireccionDto) {
-    return this.direccionesService.crear(dto);
-  }
+  crear(@Body() dto: CreateDireccionDto, @Req() req) {
+  console.log('REQ USER:', req.user);
+  return this.direccionesService.crear(dto, req.user.usuario_id);
+}
 
   // Listar direcciones
   @UseGuards(JwtAuthGuard)
   @Get()
   listar() {
     return this.direccionesService.listar();
+  }
+
+   // Direccione del Usuario Logeado
+  @UseGuards(JwtAuthGuard)
+  @Get('mis-direcciones')
+  misDirecciones(
+    @Req() req,
+  ) {
+    return this.direccionesService.obtenerDireccionesCliente(
+      req.user.usuario_id,
+    );
   }
 
   // Obtener por ID
@@ -63,4 +78,6 @@ export class DireccionesController {
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.direccionesService.eliminar(id);
   }
+
+ 
 }
